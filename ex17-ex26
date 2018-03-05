@@ -1,0 +1,302 @@
+#test 17
+
+from sys import argv
+
+from os.path import exists
+
+script,from_file,to_file = argv
+
+print "copying from %s to %s " %(from_file, to_file)
+
+# we could do these two on one line too,how?
+
+input= open(from_file)
+
+indata=input.read()
+
+print "the input file is %d bytes long: "%len(indata)
+
+print "does the output file exist ? %r " %exists(to_file)
+#exists  
+print "ready,hit return to continue ,ctrl-c to abort"
+
+raw_input()
+
+output=open(to_file,'w')
+
+output.write(indata)
+
+print "alright ,all done"
+
+output.close()
+
+input.close()
+
+###############
+########################
+#######
+
+#test 18
+
+#this onge is lke your scripts with atgv
+
+def print_two(*args):
+   arg1,arg2 =args
+   
+   print "arg1:%r ,arg2:%r" %(arg1,arg2)
+
+#op ,that *args is actually pointless,we can just do this 
+
+def print_two_again(arg1,arg2):
+
+   print "arg2:%r ,arg2:%r "%(arg1,arg2)
+   
+#this just takes one argument 
+
+def print_one(arg1):
+
+   print"arg1: %r" %arg1
+ 
+#this one takes no arguments 
+
+def print_none():
+   print "I got nothin"
+
+print_two('star','fang')
+
+print_two_again('xing','zhao')
+
+print_one('first')
+
+print_none()
+
+############################
+###############################
+#test 19
+
+def cheese_and_crackers(cheese_count,boxes_of_crackers):
+
+  print"you have %d cheeses" %cheese_count
+  
+  print"you have %d boxes of crackers!" %boxes_of_crackers
+  
+  print "man that's enough for a party!"
+  
+  print "get a blanket. \n"
+  
+print "we can just give the function numbers directly"
+
+cheese_and_crackers(20,30)
+
+
+
+print"or,we can use variables from our script:"
+
+amount_of_cheese=10
+
+amount_of_crackers=50
+
+cheese_and_crackers(amount_of_cheese,amount_of_crackers)
+
+print "we can even do math inside too:"
+
+cheese_and_crackers(10+10,5+6)
+
+print "and we can combine the ,variables an math :"
+
+cheese_and_crackers(amount_of_cheese+100,amount_of_crackers+1000)
+##########################
+################################
+#################################
+#test 20
+
+from sys import argv
+
+script,input_file =argv
+
+def print_all(f):
+  
+  print f.read()
+  
+def rewind(f):
+  
+   f.seek(0)
+   
+def print_a_line(line_count,f):
+
+   print line_count,f.readline()
+   
+current_file=open(input_file)
+
+
+print "first let's print the whole file:\n"
+
+
+print_all(current_file)
+
+
+print"now let's rewind,kind of like a tape"
+
+rewind(current_file)
+
+
+print" let's print three lines:"
+
+current_line=1
+
+print_a_line(current_line,current_file)
+
+current_line=current_line +1
+print_a_line(current_line,current_file)
+
+current_line=current_line+1
+
+print_a_line(current_line,current_file)
+#readline  是一行一行读的意思，与行序号无关
+###########
+#############
+##################
+#test 21
+
+def add(a,b):
+ 
+  print "adding %d + %d " %(a,b)
+  
+  return a+b
+  
+def subtract(a,b):
+
+   print "subtracting %d - %d "%(a,b)
+   
+   return a-b
+   
+def multiply(a,b):
+
+   print "multiplying %d *%d "%(a,b)
+   
+   return a*b
+   
+def divide(a,b):
+
+   print "divding %d / %d "%(a,b)
+   
+   return a/b
+   
+print"let's do some math with just functions!"
+
+age=add(30,5)
+
+height = subtract(90,2)
+
+weight=multiply(90,2)
+
+iq=divide(100,2)
+
+print"age :%d,,height:%d ,weight:%d ,iq: %d"%(age,height,weight,iq)
+
+
+#a puzzle for the extra credit ,type it in anyway
+
+print "here is a puzzle."
+
+what=add(age,subtract(height,multiply(weight,divide(iq,2))))
+
+
+print "that becomes:" ,what,"can you do it by hand?"
+############
+################
+####################
+#test 24
+
+print "let's practice everything"
+
+print 'you\'d need to know \'bout escapes with \\ that do \n newlines and \t tabs.'
+
+poem="""
+
+ \tthe lovely world
+ with logic so firmly planted
+ cannot discern \n the needs of love
+ nor comprehend passion from intuition
+ and requires an explanation 
+ \n\t\t where there is none.
+"""
+
+print"-----------------"
+
+print poem
+
+print"-----------------"
+
+five=10-2+3-6
+
+print "this should be five %s"%five
+
+def secret_formula(started):
+   jelly_beans=started*500
+   jars =jelly_beans /1000
+   crates=jars / 100
+   return jelly_beans,jars,crates
+	
+start_point =10000
+beans,jars,crates =secret_formula(start_point)
+
+print "with a starting point of :%d"%start_point
+
+print"we'd have %d beans,%d jars,and %d crates"%(beans,jars,crates)
+
+start_point =start_point /10
+
+print"we can also do that this way"
+
+print "we'd have %d beans,%d jars ,and %d crates"%secret_formula(start_point)
+###########
+##############
+#####################
+#test 25
+
+def break_words(stuff):
+   """this function will break up words for us """
+   words =stuff.split(' ')
+   return words
+   
+def sort_words(words):
+   """sorts the words"""
+   
+   return sorted(words)
+
+def print_first_word(words):
+   """prints the first word after popping it off"""
+   word=words.pop(0)
+   print word
+   
+def print_last_word(words):
+   """prints the last word after popping it off """
+   
+   word =words.pop(-1)##有删除最后一个词的作用
+   
+   print word
+
+def sort_sentence(sentence):
+   """takesin a full sentence and returns the sorted words """
+   words = break_words(sentence)
+   return sort_words(words)
+   
+def print_first_and_last(sentence):
+   """prints the first and last words of the sentence"""
+   words=break_words(sentence)
+   print_first_word(words)
+   print_last_word(words)
+   
+def print_first_and_last_sorted(sentence):
+   """sorts the words then prints the first and last one"""
+   words=sort_sentence(sentence)
+   print_first_word(words)
+   print_last_word(words)
+   
+   
+   ##如果不重复引用ex25. 可以使用 from ex25 import * 将所有函数解出来
+   ############
+   #################
+   ########################
+   
