@@ -1,0 +1,119 @@
+#test 13 
+from sys import argv
+
+script,first,second,third = argv
+
+print "the script is called:" , script
+print "your first variable is :",first
+print " upir second variable is :",second
+print " your third variable is :", third
+
+
+#运行方式
+#ex13.py first 2nd 3rd(后三个可以随意替换）
+
+#test 14
+
+from sys import argv
+
+script,user_name=argv
+
+prompt='>'
+
+print "hi %s,I'm the %s script" %(user_name,script)
+print "I'd like to ask you a few questions"
+print "do you like me %s?" %user_name
+likes=raw_input(prompt)
+
+print "where do you live %s ?"%user_name
+lives=raw_input(prompt)
+
+print "what kind of computer do you have?"
+computer=raw_input(prompt)
+
+print"""
+  alright ,so you said %r about liking me .
+  you live in %r. not sure where that is .
+  and you have a %r computer . nice
+"""%(likes,lives,computer)
+
+# test 15
+#file ex15_sample
+
+this is stuff i typed into a file 
+It is really cool stuff
+lots and lots of fun to have in here  
+
+#test 15
+
+from sys import argv
+
+script,filename=argv
+
+txt= open(filename)
+#先通过open打开，然后再用.read读取文本内容
+print "hire's your file %r:" %filename
+
+print txt.read()
+
+print "ytpe the filename again"
+
+file_again=raw_input(">")
+
+txt_again= open(file_again)
+
+print txt_again.read()
+
+# test 16
+
+#close 关闭文件
+#read 读取文件内容
+#readline 读取文本中的一行
+#truncate 清空文件
+#write（stuff） 将stuff写入文件
+
+from sys import argv
+
+script,filename = argv
+
+print "we're going to erase %r." %filename
+
+print "if you don't want that , hit ctrl-c"
+
+print"if you do want that , hit return"
+
+raw_input("?")
+
+print"opening the file "
+
+target = open(filename,'w')
+
+print "truncating the file .goodbye "
+
+target.truncate()
+
+print "now ,I'm going to ask you for three lines "
+
+line1= raw_input("line 1:")
+
+line2=raw_input("line 2:")
+
+line3= raw_input("line 3:")
+
+print "i'm going to write these to the file."
+
+target.write(line1)
+
+target.write("\n")
+
+target.write(line2)
+
+target.write("\n")
+
+target.write(line3)
+
+target.write("\n")
+
+print"and finally ,we close it"
+
+target.close()
