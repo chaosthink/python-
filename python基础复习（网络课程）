@@ -1,0 +1,197 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Jul 20 00:27:12 2019
+
+@author: fangzhaoxing
+"""
+
+math_score = input("请输入数学成绩：")
+chin_score = input("请输入语文成绩：")
+total_score = math_score+chin_score
+##因为输入的是字符串，所以识别成字符串，需要对类型进行转化
+total_score = int(math_score) + int(chin_score)
+
+##数据结构
+
+names= [1,3.5,7]
+names[1]
+type(names)
+len(names) ##显示长度
+#列表可以直接相加
+names2 = [1,'dd']
+names+names2
+names.append('test') ##网列表里追加元素
+names
+names.insert?
+names.insert(2,'dxt') #指定位置插入
+names
+names.count(1)
+names.pop() ###删除列表最后一个元素并返回
+names.remove(1) ###指定删除某个元素
+
+###切片
+list1=[1,2,3,4,5,6,7]
+list1[0:5:2]  ###指定步长切片
+
+###tuples元组
+##除元素不可修改外，其他与list差不多
+
+##字典
+##字典取数根据key来取，类似于‘text’
+###字典中数据是无序的，根据key来定位
+dict_test.keys() ###返回字典中的keys
+dict_test.values() ##返回字典的值
+
+dict1 = {'中国':'北京','美国':'华盛顿'}
+dict2 = {'中国':'北京','美国':'纽约'}
+dict1.update(dict2)
+dict1  ###根据某个字典的内容更新相应的值
+dict1.clear()  ##清空数据
+
+"""
+ 运算符：
+   算数运算符： + - * **平方 /  //整除  % 求余数
+    关系运算符： > >= < <= != ==等于
+    逻辑运算符： and or not
+    赋值运算符： = += 加后赋值 -= 
+    成员关系运算符： in not in
+"""
+"""
+作业1： 输入一个年份，判断是否是闰年
+作业2： 输入一个4位整数，计算各个位上的数值之和
+"""
+
+###定义一个检查是否是闰年的函数
+def is_rn():
+ x=input('请输入年份:')
+ if int(x)%4==0 or int(x)%400==0 :
+    return print('您输入的年份是闰年。')
+ else:
+    return print('非闰年')
+is_rn()
+
+
+#####输入一个数字，计算各个位数上的数字之和
+def add_str_num():
+  x=input('请输入您的数字:')
+  y=len(x)
+  i=0
+  z=0
+  for i in range(len(x)):
+    z=int(x[i])+z
+  print(z)
+
+add_str_num()
+
+
+
+####
+###set数据集，无序的，不重复的数据组合，有去重的作用
+list1 = [1,3,5,123,34]
+set1 = set(list1)##直接将列表转为set集
+set1
+set2 = set(list2)
+##交集
+list1 = [1,3,4,56,6]
+list2 = [1,4,5,6,3,2]
+
+set1 & set2 
+##取交集只能在set里面使用 &表示交集  ^表示去掉两边都有的
+
+
+###
+######控制流语句
+def jg_panduan(score):
+  if int(score)>=60:
+    print('及格')
+  else:
+    print('不及格')
+jg_panduan(61)
+
+###多分支结构
+def jg_panduan(score):
+  if int(score)>=90:
+    print('优秀')
+  elif int(score)>=80:
+    print('良好')
+  else:
+    print('一般')
+jg_panduan(61)
+
+def login_sys():
+  user_name=input('请输入账号:')
+  user_password=input('请输入密码:')
+  name_list = ['aaa','fangzhaoxing','root','test']
+  password_list= {'aaa':123456,'fangzhaoxing':1234,'root':456,'test':12341}
+  if user_name in name_list:
+    if int(user_password)==password_list[user_name]:
+      print('welcome,',user_name)
+    else:
+      print('wrong password')
+  else:
+    print('wrong username')
+
+login_sys()
+
+###循环结构、控制代码重复执行
+list1 = [1,3,4,5,6,78,8,34,45,6,7,4,67,78,5]
+count = 0
+while count< len(list1):
+    print(list1[count])
+    count += 1
+else:
+    print('end')
+    
+##在循环中加入条件，当出现某种情况的时候自动中断循环
+while count< len(list1):
+    print(list1[count])
+    if list1[count] == 8:
+      break
+    count += 1
+else:
+    print('end')    
+
+#写一个无限循环的语句
+def is_rn():
+ while True:
+  x=input('请输入年份:')
+  if x=='quit':
+     break
+  if int(x)%4==0 or int(x)%400==0 :
+     print('您输入的年份是闰年。')
+  else:
+     print('非闰年')
+ print('欢迎下次再来')
+is_rn()
+
+###range函数 range(start,end,step)
+##右上三角
+def print_n_to_n():
+  first = list(range(1,10,1))
+  second = list(range(1,10,1))
+  i=0
+  k=0
+  for i in range(len(first)):
+    print("")
+    print(i*"             ",end=" ")
+    for k in range(i,len(second),1):
+      print(first[i],"*",second[k],"=",first[i]*second[k]," ",end=" ")
+    print("\n")
+  print('乘法表输出完毕')
+print_n_to_n()
+
+####左下三角
+def print_n_to_n2():
+  first = list(range(1,10,1))
+  second = list(range(1,10,1))
+  i=0
+  k=0
+  for i in range(len(first)):
+    print("")
+    for k in range(i+1):
+      print(first[i],"*",second[k],"=",first[i]*second[k]," ",end=" ")
+    print("\n")
+  print('乘法表输出完毕')
+print_n_to_n2()
+
+####循环结构
