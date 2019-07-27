@@ -195,3 +195,52 @@ def print_n_to_n2():
 print_n_to_n2()
 
 ####循环结构
+
+####循环结构
+print(first,end="") ###不进行换行
+print(first,end=" ") ###不进行换行且加空格
+
+#简单的嵌套
+list4=[[11,13,4,5],[13,664,74],[13,56]]
+for i in list4:
+    for j in i:
+      print(j,end=" ")
+
+##遍历字典
+dict1 = {'中国':'北京','美国':'华盛顿','英国':'伦敦'}
+dict1.items()
+
+for key in dict1:
+    print(key,dict1[key])
+    
+for k,v in dict1.items():
+    print(k,'->',v)
+    
+###同时获取索引和值
+list5 = ['a','c','d','g']
+for i,s in enumerate(list5):
+    print(i,s)
+    
+####利用列表和循环获取相应的值
+list7 = []  ##定义一个空的列表
+for i in list(range(20)):
+  if i%2==0:
+    list7.append(i)  ##将满足条件的数加入列表
+print(list7)
+
+#####使用列表推导
+list9 = [i for i in list(range(20))]
+
+list9 = [i for i in list(range(20)) if i%2==0] 
+list9
+
+###某种双生遍历方式
+list13 = [1,2,3,4,5]
+list14 = ['a','b','c','d','e']
+list15 = list(zip(list13,list14))
+list15
+
+#break结束循环
+#continue： 结束当前循环，立即开始下一轮循环
+#pass ：占位语句
+
