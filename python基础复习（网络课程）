@@ -431,3 +431,68 @@ list1 = ["hello",'apple','bar','zoo']
 sorted(list1,reverse=True)
 sorted(list1,key=lambda x:len(x))  ###定义排序规则
 
+
+####python的异常
+##invalid syntax无效语法
+def chufa():
+  a = input('请输入除数:')
+  b = input('请输入被除数:')
+  try:  #有可能出错的代码放在try
+    result=int(a)/int(b)
+  except ZeroDivisionError: ##捕获异常
+    print('分母为0，请重新输入')
+  try:
+    print('商为:',result)
+  except UnboundLocalError:
+    print('请重新执行')
+    
+####else的使用，就不用再写一个try
+def chufa():
+  a = input('请输入除数:')
+  b = input('请输入被除数:')
+  try:  #有可能出错的代码放在try
+    result=int(a)/int(b)
+  except ZeroDivisionError: ##捕获异常
+    print('分母为0，请重新输入')
+  else:
+    print('商为:',result)
+chufa()
+
+###捕获多种异常
+list1 = [1,2,3,4,5]
+list2 = [1,2,4,0,7]
+
+def show(one_list):
+    try:
+        index=0
+        while index<=len(one_list):
+            print(10/one_list[index])
+            index +=1
+    except ZeroDivisionError:
+        print('分母不能为0')
+    except IndexError:
+        print('索引超出下标')
+show(list1) ##分别会出现两个错误，1超出下标，2分母为0
+show(list2)
+
+##懒人写法，不管啥异常就直接报错
+def show(one_list):
+    try:
+        index=0
+        while index<=len(one_list):
+            print(10/one_list[index])
+            index +=1
+    except : ###能捕获所有异常 
+        print('分母不能为0或下标越界')
+show(list1) ##分别会出现两个错误，1超出下标，2分母为0
+show(list2)
+
+###finally的用法
+list1 = [1,2,3]
+
+try:
+    print(list1[3])
+except:
+    print('下标越界')
+finally:
+    print('无论怎么样都会执行')
