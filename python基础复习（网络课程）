@@ -244,3 +244,190 @@ list15
 #continue： 结束当前循环，立即开始下一轮循环
 #pass ：占位语句
 
+
+#####字符串内容
+###转义字符
+#\n 换行  \t制表符
+####如果不想使用转义字符，可以使用r来表示使用原生字符
+str1 = 'hello\n\tworld'
+str2 = r'hello\n\tworld'
+print(str1+str2)
+
+print('他说："今天天气很好"')
+print('他说：\'今天天气很好\"')  ##两种方式，1使用不同的引号，或使用转移符
+
+###常用的字符串方法
+text = 'apple pen'
+text.count('p') ##计数
+text.upper()
+text.lower() ###小写
+
+'-'.join(text) ###加入元素
+text.replace('p','n') ###将某些字符替换掉
+text.split()  #将字符串拆分成数个
+text.split('l')  ##按某个字符进行拆分
+##试一下中文能不能
+txt2= '今天天气好晴朗'
+txt2.split('天')#### ok中文字符能拆分，且拆分的依据字符会消失
+
+####去掉空格
+text3 = '   $#%%***   apple * pen $$   '
+text3.strip()  ###只是句首尾的空格去掉了
+text3.strip(' *') ##只会去掉两端的
+####可以去掉收尾一些讨厌的字符或空格
+###c查找子字符串
+text3.find('a')
+text3.find('a',6) ###从第几个元素开始查找
+text3.find('a',15,19) 
+###邮箱格式正不正确
+def email_right():
+  email = input('请输入您的163邮箱:')
+  if email.find('@') == -1 or email.find('163.com')== -1 or email.find('@')>email.find('163.com'): 
+    print('邮箱格式不正确')
+  else:
+    print('邮箱格式正确')
+
+msg = 'hello'
+msg.endswith('lo') ##判断是否以某字段结尾
+
+##多个字符的一一对应替换
+text
+tables = text.maketrans('pe','st')  ###首先制造一个映射，pe和st互换
+text.translate(tables)  ###再将定义好的转换形式传入translate函数
+
+###字符串输出控制
+####print指定分隔符 sep='-'
+###指定是否换行 end=""
+###格式化输出
+name = '张珊'
+age = 23 
+print('我叫%s,今年%s岁了' %(name,age)) ###使用宏函数
+print(f'我叫{name},今年{age}岁了') ###第二种引入方法
+print('我叫{},今年{}岁了'.format(name,age)) ###第二种方法在老版python的用法
+
+####
+####
+#######函数
+####利用函数的形参置入一个列表
+list1 = [1,34,'fd','dd']
+def show(lst):
+  for i in lst:
+    print(i,end=" ")
+show(list1)
+###定义一个可变参数的函数
+def add(num1,num2,*args):
+    sum = num1 + num2
+    if len(args)>0 :
+        for i in args:
+            sum += i
+    return sum
+add(1,3,5,67)
+####args 表示一些不确定长度的值
+
+####函数part2
+###全局变量和局部变量
+###先遍历局部变量再遍历全局变量，函数内可以访问全局变量
+
+###递归函数
+#在一个函数内调用函数本身
+###写一个计算阶乘的函数
+def factiorial(n):
+    if n==0:
+        return 1
+    else:
+        return n* factiorial(n-1)
+factiorial(5)
+
+###匿名函数
+###lambda 表示匿名函数，冒号前的x表示函数参数，匿名函数只有一个表达式
+##不用写return 
+###给定一个参数返回参数的平方
+fun2= lambda x: x*x
+fun2(3)
+
+###内置函数
+##逻辑判断函数
+list1 = [1,3,4,5,6]
+all(list1)  ##判断有零值
+any(list1) ##有一个是非零就为TRUe
+#判断变量数据类型
+a = 12
+b = 12.3
+isinstance(a, int)
+
+###s数学计算函数
+abs(a) ##求绝对值
+divmod(a,3) ###返回商和余数
+pow(a,2) #求a的2次方
+pow(a,2,3) #求a的2次方，并对3求余（模）
+round(b)  #求四舍五入
+round(b,2)  ###指定第几位
+
+###序列相关的函数
+#len range
+for x in reversed(list1):
+    print(x,end=" ")
+###reversed可以对列表进行反转
+#sorted排序函数
+#zip函数 是拉链函数，可以进行一一对应
+for x,y in zip(list1,list2):
+    print(x,'>=',y)
+###如果长度不一致，会以短的那个为准
+
+#####python的高级特性
+##列表推导
+[x for x in range(1,11)]    
+[x*2 for x in range(1,11)]  ####列表推导时可以对x进行变换
+[x for x in range(10,20) if x%x==0] ##列表推导可以对x进行筛选
+
+#生成器，生成一个序列流（用于大数据量生成时） 
+#生成器很像一个函数,用yield代替return返回值
+def generator():
+    yield 1 ###1表示具体的值
+    yield 2
+    yield 3
+###生成器使用方法
+var = generator()
+next(var)
+next(var) ####每次会遍历下一个值
+
+##使用方法2
+for x in generator():
+    print(x,end=" ")
+###调用第三方数据的时候方便使用
+    
+####高级函数
+###参数为函数的函数为高级函数
+#map reduce filter sorted
+##map
+#map(函数，迭代对象)
+list1 = [1,2,3]
+def fun(x):
+    return x*x
+list2 = map(fun,list1)
+for i in list2:
+    print(i,end="*")
+###直接把函数写进map里
+list2 = map(lambda x:x*5,list1)
+for i in list2:
+    print(i)
+
+###filter函数
+list1 = [1,34,56,6,8,5,23]
+list2 = filter(lambda x:x%2==1,list1)
+for i in list2:
+    print(i)
+###filter筛选了部分元素
+
+####reduce ：规约
+from functools import reduce
+list1 = [1,2,3,4,5]
+reduce(lambda x,y:x*y,list1)
+#第二种用法
+reduce(lambda x,y:x+y,[1,3,5,7,9],10) ###第三个参数指的是初始值，否则从0开始
+
+###sorted
+list1 = ["hello",'apple','bar','zoo']
+sorted(list1,reverse=True)
+sorted(list1,key=lambda x:len(x))  ###定义排序规则
+
