@@ -496,3 +496,113 @@ except:
     print('下标越界')
 finally:
     print('无论怎么样都会执行')
+
+
+###自定义异常
+class networkerror(RuntimeError): ###在runtimeerror的基础上进行定义
+    def _init_(self,arg):
+        self.args = arg
+    
+##使用raise获取异常
+try:
+    print('执行自己的业务代码')
+    if 1==1:
+        ###自己创建一个networkerror类型的异常，并抛出
+        raise networkerror('bad hostname')
+except networkerror as e:  ###把这个异常命名为e
+    print(e.args)
+
+#####
+######模块
+
+import random  ###随机数模块
+print(random.Random()) ####生成一个0，1之间的随机小数
+print(random.uniform(10,12))  ###产生指定范围内的随机小数
+help(random.uniform)
+print(random.randint(1,11)) ##产生指定范围内的随机整数
+help(random.randint)
+
+list1 = [1,3,5,6,7,8,4,2,33]
+print(random.choice(list1))  ##随机抽取列表中的一个数
+print(random.randrange(4,55)) 
+random.shuffle(list1)
+print(list1)  ##洗牌
+
+###随机抽样
+print(random.sample(list1,2)) ###随机抽取两个元素
+
+###math模块，用于数学的模块
+import math
+print(math.floor(3.98)) ###取整
+print(math.ceil(4.4)) ###向上取整
+
+###I/O操作
+###input/output
+###简单的内置open函数
+path = '此路径.csv' ###使用变量传入
+f=open('这里填写你的路径.csv','r') ###r表示只读操作，其他标识，r+,w+,a+等
+print(f.read())
+f.close()
+
+##为文件可以正常关闭，需要写try
+try:
+    f = open('xxx.csv','r')
+    print(f.read())
+except:
+    print('文件不存在')
+finally:
+    f.close()
+####使内存不会误用
+###上面的代码会出错
+##可以使用with语句
+try:
+    
+    with open('xx。csv','r') as fs:
+        print(fs.read())
+except:
+    print('文件不存在')
+#####执行了文件的打开和关闭
+######写入一个文件
+content = 'good good study , day day up;
+try:
+    with open('xx.csv','w') as fs:
+        fs.write(content)
+except:
+    print('文件不存在')
+#重复执行的话也会覆盖掉之前的内容
+content = 'good good study , day day up;
+try:
+    with open('xx.csv','a') as fs:
+        fs.write(content)
+except:
+    print('文件不存在')
+##每次都会追加进内容
+####读取文件，乱码的处理
+###中文的编码：gb2312  gbk utf-8
+try:
+    with open('hello.csv','r',encoding='gbk') as fs:
+        print(fs.read())
+except:
+    print('文件不存在')
+    
+#####os模块
+import os
+os.mkdir('abc') ###创建abc文件夹
+os.rename('abc','dd')  ##重命名文件夹
+os.rmdir('abc2') ###删除文件夹
+
+######json数据解析
+import json
+
+product = {'id':'1001','name':'iphone','price':5986.50} 
+####将上述数据保存到json文件中
+with open('product.json','a') as file:
+    json.dump(product,file)
+    print('写入成功')
+
+###从json中读取数据，并保存
+with open('product.json','r') as file:
+    pro = json.load(file)
+    print(pro)
+    print(product['id'])
+    
