@@ -606,3 +606,167 @@ with open('product.json','r') as file:
     print(pro)
     print(product['id'])
     
+
+####时间跟时间处理的部分缺失
+###主要是三部分 time 和datetime的使用
+    
+###类和对象的理解
+####类和对象相当于提供一种自己定义的数据结构，并且给这种歌数据结构赋予操作方式
+####使得对象变得灵活
+class  person:   ###定义一个类叫做person
+    name = '登记规定'   #@##类中的变量（实例变量）
+    age = 21
+    gender = 'm'
+
+    def info(self):     ###定义一种操作方法叫做info
+        print(person.name,person.age,person.gender)
+        
+p1 = person()  ###把p1定义为person  ###实例化对象
+p1.info()   ##显示类的信息
+p1.name
+###数据的表现表现为变量，数据的处理方法表现为函数
+
+#####如何在类里定义类变量
+class Person:  #首字母大写
+    ###定义类变量
+    total_person = 0  ###类变量
+    
+    def __init__(self):  ###self是必须的。表示person的实例化 
+        ###在这个函数内，定义实例变量并赋初始值
+        self.name = 'zhangsan' 
+        self.age = 21 
+        self.gender = 'm'
+        
+    def info(self):     ###定义一种操作方法叫做info
+        print(self.name,self.age,self.gender)
+        
+#####上面的定义方法有缺陷，，变量写死了，可以换一种方法
+class Person:  #首字母大写
+    ###定义类变量
+    total_person = 0  ###类变量
+    
+    ###构造器，将构造该类的对象实例时，此方法会被自动调用
+    ##构造器的主要作用是对实例变量就行初始化
+    ####参数self代表该方法所在的对象实例本身，比如p1/p2
+    def __init__(self,name,age,gender):  ###self是必须的。表示person的实例化 
+        ###在这个函数内，定义实例变量并赋初始值
+        self.name = name
+        self.age = age 
+        self.gender = gender
+        self.salary = 0
+        Person.total_person += 1
+        
+    def info(self):     ###定义一种操作方法叫做info
+        print(self.name,self.age,self.gender,self.salary)
+    
+    def add(self,factor):
+        self.salary = round(self.salary*(1+factor))
+        
+###开始调用这个类
+p1 = Person('zhangsan',33,'M')
+p2 = Person('lishi',23,'F')
+####分别调用两个对象的方法
+print('现有员工有：',Person.total_person)
+ 
+p1.salary = 10000
+p1.add(0.2)
+p2.info()
+p1.age +=1  ####可以改变p1的值
+
+####面向对象的三大特征： 封装、继承和多态 
+
+####继承
+####继承父类的功能
+class ForeignPerson(Person):
+    country = ""
+    def __init__(self,name,age,gender,country):
+        super().__init__(name,age,gender)
+        self.country = country
+
+p1 = ForeignPerson('mike',22,'M','USA')
+p1.country
+####继承类父类的基础，并加上了国籍
+####方法重写
+
+class ForeignPerson(Person):
+    country = ""
+    def __init__(self,name,age,gender,country):
+        super().__init__(name,age,gender)
+        self.country = country
+        
+    def info(self):     ###定义一种操作方法叫做info
+        print(self.name,self.age,self.gender,self.salary)
+        print('I am come from',self.country)
+    
+p1 = ForeignPerson('mike',22,'M','USA')
+p1.info()
+###同样的info方法，可能有不同的调用结果，就叫做多态
+
+####析构，销毁一个对象
+class ForeignPerson(Person):
+    country = ""
+    def __init__(self,name,age,gender,country):
+        super().__init__(name,age,gender)
+        self.country = country
+        
+    def info(self):     ###定义一种操作方法叫做info
+        print(self.name,self.age,self.gender,self.salary)
+        print('I am come from',self.country)
+    
+    def __del__(self):
+        print(self.name,'已删除记录')
+p1 = ForeignPerson('mike',22,'M','USA')
+p1.info()
+del p1
+
+#####练习
+###编写一个代表银行账户的类，并测试功能
+###银行账户主要的数据
+####卡号，余额、姓名
+###对数据的操作有，存款、取款、读取卡号
+class bank_account:
+    def __init__(self,cust_name,card_no):
+        self.cust_name = cust_name
+        self.card_no = card_no
+        self.balance = 0
+        self.acc_status = 'ACTIVE'
+        self.acc_level = 'B'
+    
+    #####打印账户信息
+    def acc_info(self):
+        print('尊敬的客户:',self.cust_name,'您好！')
+        print('您的卡号是：',self.card_no)
+        print('您的余额为:',self.balance)
+    
+    def load_card_no(self):
+        print('您的卡号是：',self.card_no)
+        print('您的账户等级为：',self.acc_level)
+        
+    def take_cash(self,amount):
+        #####执行取款操作
+        if amount> self.balance:
+            print('您的余额不足')
+        else:
+            print('您的取款金额为：',amount)
+            self.balance-= amount
+        balance_new = input('如果您想查询余额，请输入Y：')
+        if balance_new in ('Y','y','yes','YES','Yes'):
+            return self.balance
+        else:
+            print('祝您生活愉快！')
+            
+    def keep_cash(self,amount):
+        #####执行取款操作
+        print('您的存款金额为：',amount)
+        self.balance+= amount
+        balance_new = input('如果您想查询余额，请输入Y：')
+        if balance_new in ('Y','y','yes','YES','Yes'):
+            return self.balance
+        else:
+            print('祝您生活愉快！')
+           
+cust1 = bank_account('王大友','962134244')
+cust1.acc_info()
+cust1.load_card_no()
+cust1.take_cash(500)
+cust1.keep_cash(500)
