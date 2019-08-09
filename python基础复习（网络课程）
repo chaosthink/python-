@@ -770,3 +770,63 @@ cust1.acc_info()
 cust1.load_card_no()
 cust1.take_cash(500)
 cust1.keep_cash(500)
+
+
+###数据库编程
+import pymysql
+
+####打开数据库连接
+db = pymysql.connect('localhost','root','123456','learning')
+
+
+####cursor 对象
+cursor = db.cursor() 
+
+####使用execute执行sql
+cursor.execute('show tables from learning;')
+
+#####因为sql语句一般比较长，所以用以下方法进行执行
+sql_drop= """
+drop table if exists Employees;
+"""
+
+sql_create= """
+create table Employees(
+  empid  varchar(10),
+  empname varchar(20),
+  age int
+);
+"""
+
+sql_insert= """
+insert into Employees values('1002','钉钉三',28);
+"""
+
+sql_update= """
+update employees set age=age+1;
+"""
+
+###执行sql语句
+cursor.execute(sql_drop)
+cursor.execute(sql_create)
+cursor.execute(sql_insert)
+cursor.execute(sql_update)
+
+#####执行查询，并保存数据
+sql_select= """
+select * from employees;
+"""
+cursor.execute(sql_select)
+row_all = cursor.fetchall()
+
+##用循环方法保存
+results = cursor.fetchall()
+for row in results:
+    print(row[0],row[1],row[2])
+
+
+db.commit()
+
+####关闭数据库
+db.close()
+
