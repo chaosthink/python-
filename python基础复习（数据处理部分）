@@ -1,0 +1,226 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Aug  9 17:32:35 2019
+
+@author: fangzhaoxing
+"""
+
+#####numpy
+
+####对比列表认识数组
+
+import numpy as np
+
+lst = [10,20,30,40]
+
+###创建数组
+arr = np.array([10,20,30,40])
+arr
+lst
+#####索引方式相同
+lst[0]
+arr[0]
+###切片方式相同
+lst[3:]
+arr[3:]
+
+###列表与数组的不同
+
+####数组不能放不同类型的元素
+####列表可以
+
+arr.dtype  ####查看数据类型
+arr[-1] = np.int32(1.09) ###添加相同数据类型的数值
+
+####数组的创建
+arr2=np.array(lst)
+
+###创建2维数组
+lst2 = ([5,6,7,8,9],[4,3,2,1,0])
+arr2 = np.array(lst2)
+lst2
+arr2
+
+###创建全为0或全为1的数
+np.zeros(5,dtype=float)
+np.ones(5,dtype=float)
+np.zeros((2,3))
+
+a= np.empty(4)
+a
+#$#$##填充某个数
+a.fill(5)
+##生成数组
+np.arange(6)
+###创建等差数列
+np.arange(0,30,10)
+###0-1的5个随机数 标准正太分布
+np.random.randn(5)
+np.random,normal(10,2,(3,5))  ###均值为10，标准差为2，3行5列
+
+arr= np.arange(10)
+arr[5]
+arr[5:] ###切片，从5到最后
+arr[4:7] = 666  ##切片出来修改
+arr
+
+####定义一个函数
+def f(x,y):
+    return 10*x+y
+###这里导入的x和y分别是数组下标的小河y
+arr2 = np.fromfunction(f,(5,4),dtype=int)
+arr2
+arr2[1]
+arr2[2:4]  ###切三四行
+arr2[0:2,1:4]
+####便捷写法
+arr2[:2,1:]
+####把每一行的取出来
+for row in arr2:
+    print(row)
+###  数组的镜像与复制
+arr=np.arange(10)
+arr[4:7] = 888,666,888
+arr
+arr_ps=arr[4:8]
+arr_ps
+arr_ps[0:3] = 666
+arr   ###切片的时候，赋值给另一个变量，镜像数据也会跟着改变
+arr_pss = arr[4:8].copy()  ####这样就不会链接到一起
+
+####数组的变换
+###切成两组
+arr.reshape(2,5)
+arr
+
+arr=np.arange(8)
+arr3= arr.reshape(2,2,2).copy()
+
+#$###数组的其他属性
+arr.size   ###
+arr.ndim   ###查看维度
+arr.shape  ###有几行
+arr3.size   ###
+arr3.ndim   ###查看维度
+arr3.shape  ###有几行
+
+#####数组的运算
+arr1 = np.arange(4)
+arr2 = np.arange(10,14)
+arr2+arr1
+arr2*arr1
+np.sqrt(np.arange(1,11))
+arr1[1:].sum()
+arr1[:1].sum()
+
+arr4 = np.arange(10)
+arr5 = arr4.reshape(2,5)
+arr5
+#####按行求和、求均值等
+arr5.sum(axis=1)
+arr5.mean(axis=1)
+####按列求
+arr5.sum(axis=0)
+arr5.mean(axis=0)
+
+###c常用的数组方法
+arr=np.arange(15).reshape(3,5)
+arr
+###转置
+arr.T  ##转成五行三列
+
+####用于布尔数组的方法
+bools = np.array([False,True,True,True,False])
+bools
+bools.any()  ####  是否存在任一的真值
+bools.all()  ###是否全为真值
+
+####排序
+from numpy.random import randn
+arr = randn(7)
+arr.sort()
+arr= randn(5,3)
+arr.sort(1)
+arr
+
+####判断是否唯一
+names = np.array(['zs','ls','ww','zs','ls'])
+up.unique(names)  ###简单的去重
+
+arr1 = np.array([4,5,6,2,5,7,4,0])
+arr2 = np.array([1,2,3,4,7,8,4,3])
+np.in1d(arr1,[1,5,6])  ####返回某个值是否在某个列表里
+np.intersect1d(arr1,arr2)  ###查找交集并排序
+np.union1d(arr1,arr2)   ###返回并集
+
+#####numpy的广播
+arr1 = np.arange(3)
+arr1+5
+
+arr2 = np.ones((3,3))
+arr2
+
+arr1+arr2  ##广播填充
+
+arr3 = arr1.reshape(3,1)
+
+arr4 = arr1+arr3   ####按照维度进行广播
+
+####线性代数
+####更强大的数学功能
+###scipy.special模块
+s = np.linspace(0,2*np.pi,100)   ###0到2pi之间取100个点
+y = np.sin(s)
+
+v1 = np.array([2,3,4])
+v2 = np.array([1,2,3])
+
+v1*v2
+####矩阵点乘
+np.dot(v1,v2)
+
+arr3 = np.arange(6).reshape(2,3)
+
+np.dot(arr3,v1)
+
+np.dot(arr3,arr3.T)  ###矩阵相乘
+
+#######
+######
+#######
+"""
+   pandas
+
+"""
+
+######
+""""
+主要  series 和  pandas
+"""
+
+import pandas as pd
+
+ser = pd.Series(np.random.randn(5))  #####会自动生成一个从0开始的索引
+
+ser = pd.Series(np.random.randn(5), index=['a','b','c','d','e'])  ###指定索引，长度要跟值的数量一致
+
+
+d = {'a':0,'b':1,'c':2}
+ser2 = pd.Series(d)   ####列表可以穿到np里做数组，字典可以传入pd里当做series
+
+pd.Series(3,index=['a','b','c'])  ####使用标量进行传值必须手工加上索引
+
+pd.Series([1,2,'b'],index=['a','b','c'])  ####seriers里可以有不同的类型
+
+ser.values  ####提取数的方法
+
+
+
+
+
+
+
+
+
+
+
