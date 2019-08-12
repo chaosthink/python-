@@ -214,6 +214,40 @@ pd.Series([1,2,'b'],index=['a','b','c'])  ####seriers里可以有不同的类型
 
 ser.values  ####提取数的方法
 
+ser.index ####查看索引
+ser[ser>ser.mean()]
+
+np.exp(ser)
+ser['a']  #####可以用key值判断
+
+'c' in ser  ###判断的方式
+ser[:-1]  ##去掉最后一行 
+###series计算的时候会对齐标签，标签不一致的部分不会相加
+
+#####属性
+####series 的名称属性
+ser = pd.Series(np.random.randn(5),name='mysheet')
+####可以用rename进行改名
+ser.index.name = 'index_name' ####索引也可以加名字
+
+####数据框
+####dataframe
+d = {'one':pd.Series([1,2,3],index=['a','b','c']),'two':pd.Series([1,2,3,4,5],index=['a','b','c','d','e'])}
+df = pd.DataFrame(d)
+
+####只要求中的部分
+pd.DataFrame(d,index=['a','b','c'])  ####只要部行
+pd.DataFrame(d,index=['a','b','c'],columns=['one','two'])  ####只要部行，和部分列 ,挑出部分行
+df.columns
+
+df['three']=df['one']* df['two'] ##直接添加列
+ 
+del df['two']  ####删除某个列
+df.pop('three')  ##删除某个列并返回列表
+
+df.insert(0,'zero','df['one'])   ###在指定位置插入某列
+
+####dataframe的运算
 
 
 
