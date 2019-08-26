@@ -249,6 +249,76 @@ df.insert(0,'zero','df['one'])   ###在指定位置插入某列
 
 ####dataframe的运算
 
+index = pd.date_range('16/7/2018',periods=7)
+df = pd.DataFrame(np.random.randn(7,3),index=index,columns=['A','B','C'])
+
+####PANDA读取文件
+df = pd.read_csv("") 
+df.head()  ####默认前5个，可以自己写呀要显示几个
+df.tail()  #####后5条)
+
+#####读取excel文件
+df_excel = pd.read_excel("",sheet_name='Sheet1')  ###可以指定sheet的名字
+
+df.to_csv(""，encoding='utf-8')   ####保存数据
+df.to_excel()  ###用法同上
+
+60-pandas-puzzles
+
+
+#####pandas下部分
+ ####数据信息概况
+ import numpy as np
+ import pandas as pd
+df2 = pd.read_csv('C:\\Users\\fangzhaoxing\\Desktop\\occu.csv',sep='|')
+df2.head()
+df2.shape  #####  查看维度
+df2.columns ####查看列名
+df2.describe()   ####默认只对数值型描述统计
+df2.describe(include='all')   ####对所有变量进行描述
+df2.info()  ###变量信息概览
+df2.tail(3)   ###查看最后几行
+df2['age'].head() ####查看某些行
+
+######索引合筛选
+df2.loc[df2.age==28,]   ###单条件筛选
+df2[df2.age==28]   ###单条件筛选，单不能选行
+df2.loc[(df2.age==28) & (df2.gender == 'M'),:] ###x多条件索引
+df2.loc[(df2.age==28) & (df2.gender == 'M'),['age','gender']]  ####多条件切选部分行
+
+df2.drop('name',axis=1) ###删除某些数据集
+df2.rename(columns = {'age':'ages'})  ####对字段的重命名，注意不会更改原数据集
+df2.rename(columns = {'age':'ages'}，inplace = True)  ####对字段的重命名，使用inolace后会更改原数据集
+ 
+###数据类型的转化
+data = pd.DataFrame({'id':range(4),'age':['27','28','30','26'],'outcome':['13.3','18.8','8.5','20.5']})
+data.dtypes
+data = data.astype({'age':'int','outcome':'float'})  ####数据类型的转化
+
+###排序
+data.sort_values('outcome')
+
+#$#数据去重
+data2 = pd.DataFrame({'id':[1,2,3,2],'age':[23,28,21,28],'gender':['M','F','F','M']})
+data2
+data2.drop_duplicates()  ####去重并返回
+
+pd.crosstab(index=data2.gender,columns=data2['age'])  #$####交叉列联表
+
+####缺失值的处理
+data3  = pd.DataFrame({'id':[1,np.nan,3,2],'age':[23,28,21,np.nan],'gender':['M','F','F','M']})
+data3.fillna(method='ffill')  ####向上填充
+data3.fillna(method='bfill')  ###向下填充
+data3.fillna(value = {'id':data3.id.mean(),'age':data3.age.median()})
+
+####缺失值的运算
+###缺失值的运算会忽略掉
+
+####缺失值的处理 fillna
+####1.使用标量进行填补
+data3.fillna(0)  ####填充为0
+data3.fillna(method='bfill')  ###向后填充
+data3.fillna(method='bfill',limit =1)  ###向后填充,只填充一位
 
 
 
