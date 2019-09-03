@@ -320,7 +320,118 @@ data3.fillna(0)  ####填充为0
 data3.fillna(method='bfill')  ###向后填充
 data3.fillna(method='bfill',limit =1)  ###向后填充,只填充一位
 
+####  更换字符用repalce
+data3.replace({'id':2,'age':21},22)   #####注意冒号后的不是索引 是具体的值
 
+#####数据汇总
+a = df2.groupby(['age','gender'])  ####双字段汇总
+a.groups   #####查看分组情况
+a.aggregate(np.sum)  ####查看具体分组的情况
+a.size()  ####查看大小
+a.agg(np.mean).head()
+a.agg([np.sum,np.mean]).head()
+a.agg([np.sum,np.mean]).rename(columns={'sum':'求和','mean':'均值'}).head() ####为新列取名
+
+#####apply 函数
+lbd = lambda x: x.max() - x.min()
+df2[['age','user_id']].apply(lbd)  ####将函数应用到数据框中
+df2[['age','user_id']].apply(lbd,axis=1).head()  ####按行处理
+
+####数据合并
+df1 = pd.DataFrame({'A':['a0','a1','a2','a3'],
+                    'B':['b0','b1','b2','b3'],'C':['c0','c1','c2','c3'],'D':['d0','d1','d2','d3']},index = [0,1,2,3])
+
+df2 = pd.DataFrame({'A':['a4','a5','a6','a7'],
+                    'B':['b4','b5','b6','b7'],'C':['c4','c5','c6','c7'],'D':['d4','d5','d6','d7']},index = [4,5,6,7])
+
+df3 = pd.DataFrame({'A':['a8','a9','a10','a11'],
+                    'B':['b8','b9','b10','b11'],'C':['c8','c9','c10','c11'],'D':['d8','d9','d10','d11']},index = [8,9,10,11])
+
+lj = pd.concat([df1,df2,df3])  ####直接纵向连接
+lj = pd.concat([df1,df2,df3],keys = ['x','y','z'])  ###将表区分开
+
+lj2 = pd.concat([df1,df2],axis=1)  ######横向链接
+
+lj3 = df1.append(df2)  ####跟纵向合并是一样的
+lj3 = df1.append(df2,ignore_index=True)  #### 重新进行索引
+
+####第三种方式merge，跟数据库一致
+pd.merge(df1,df3,on='A')  #####key值无重复，因此为空集，key值可以是多个
+pd.merge(df1,df3,how='left',on='A')  #####左连接
+
+######
+######数据透视表
+columns = pd.MultiIndex.from_tuples([('A','cat','long'),('B','cat','long'),('A','dog','short'),('B','dog','short')],
+                                     names=['exp','animal','hair_length'])
+
+df = pd.DataFrame(np.random.randn(4,4),columns=columns)
+
+pd.pivot_table(df,index=['B','a'],columns=['C'],values='D') ####创建一个透视表
+
+###
+######
+##### 可视化
+######使用matplotlib
+import  matplotlib
+import matplotlib.pyplot as plt
+%matplotlib inline  #####直接画出图来，不用再调用一遍
+print(matplotlib.style.available) ####查看matplotlib的风格
+plt.style.use('ggplot')   ####使用ggplot风格
+df = pd.Series(np.random.randn(800),index=pd.date_range('18/01/2017',periods=800))
+ts = df.cumsum()
+ts.plot()  ####画出了一个随机漫步的数列
+
+##换一下别的风格
+plt.style.use('seaborn-colorblind')   ####使用ggplot风格
+df = pd.Series(np.random.randn(800),index=pd.date_range('18/01/2017',periods=800))
+ts = df.cumsum()
+ts.plot()
+
+#$####画出多组数据
+df = pd.DataFrame(np.random.randn(800,5),columns=list('ABCDE'))
+ts = df.cumsum()
+ts.plot()
+ts.plot(x='A',y='B')  ####
+
+####设置图片大小
+fig,ax=plt.subplots(1,1,figsize=(10,10))
+df = pd.DataFrame(np.random.randn(800,5),columns=list('ABCDE'))
+ts = df.cumsum()
+ts.plot(ax=ax)
+
+####设置图片大小,画两张图
+fig,(ax1,ax2)=plt.subplots(1,2,figsize=(20,10))
+df = pd.DataFrame(np.random.randn(800,5),columns=list('ABCDE'))
+ts = df.cumsum()
+ts.plot(ax=ax1)
+ts.plot(ax=ax2)
+
+#￥####如何应用到2*2的形式
+fig,axes = plt.subplots(2,2,figsize=(12,12))
+ts.plot(ax=axes[0][0])
+ts.plot(ax=axes[0][1])
+ts.plot(ax=axes[1][0])
+ts.plot(ax=axes[1][1])
+fig.tight_layout()
+
+####画其他图形
+###bar 条形图
+###直方图 hist
+###box箱线图
+####scatter散点图
+###pie饼图
+fig,ax=plt.subplots(1,1,figsize=(10,10))
+df = pd.DataFrame(np.random.randn(10,2),columns=list('AB'))
+df.plot(ax=ax,kind='bar',color=['y','r'])  ####更换颜色
+#####堆积的形式
+df.plot.bar(stacked=True)
+####把纵向换成横向
+df.plot.barh(stacked=True)
+
+#####直方图
+fig,ax=plt.subplots(1,1,figsize=(10,10))
+df = pd.DataFrame(np.random.randn(500,1),index=pd.date_range('18/01/2017',periods=500),columns=list('A'))
+df.plot.hist()
 
 
 
