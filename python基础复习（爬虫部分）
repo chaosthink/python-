@@ -1,0 +1,220 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Sep  7 16:09:42 2019
+
+@author: fangzhaoxing
+"""
+
+####
+"""
+   python 爬虫部分
+
+"""
+###
+
+
+#####爬虫就是模拟人的网页浏览行为
+                    
+#####网页源代码的结构
+
+"""
+html是网页的主体
+css是负责对网页进行装饰的
+JavaScript是网页的功能
+爬虫只需要了解html
+html是标签型的语言，以标签对进行出现
+<表示开始> </表示结束>
+<head> 是网页的前后部分，不包含主体
+ <body> 包含网页的主体内容
+  <body>里包含 div区块，区块里又包含不同的属性
+   <h1> 不同字号标题
+    <li> 列表
+     <img> 图片
+      <a>放置链接
+       <p> 文字内容
+"""
+
+#写一个html文件
+"""
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> test title </title>
+            <body>
+                <div>
+                    <h1>逗总是个大傻瓜</h1>
+                    <h2>数据服务</h2>
+                    <p>努力成为一个厉害的数据分析师</p> 
+                </div>
+                <div>
+                    <li><a href="https://fanyi.baidu.com/">百度翻译</a>
+                    </li>
+                    <li><a href="https://www.runoob.com/">小木虫</a>
+                    </li>
+                </div>
+            </body>
+    </head>
+</html>
+"""
+
+###htnl结构  根节点跟叶节点的结构，再理解为父节点跟子节点
+#####理解请求和响应的关系
+"""
+Request 请求 向服务器发送访问请求
+    请求包含 get方式 ：大多数网站用的方式，响应速度快
+            post方式 除了查询信息外还可以修改信息---提交信息的时候，如提交密码 ，翻译内容等（需要构建表单）
+              写爬虫前要确认向谁发送请求，用什么方式请求
+              user-agent  显示浏览的方式，称为请求头 ，爬虫时会显示python查询
+              
+Response 响应 服务器在接受用户的请求后，会验证请求的有效性，然后向用户发送响应的内容
+        响应情况：200：成功返回  404：请求网页不存在  403：服务器拒绝请求
+
+"""
+
+### 写第一个爬虫
+######urllib
+##tieba.baidu.com/p/2460150866   桌面把
+"""
+打开贴吧，点击帖子，点击一个图片检查，可以看到图片的地址
+双击图片，复制链接看是不是对应的图片
+在网页源代码找到图片地址，观察前后的格式
+"""
+
+import urllib.request
+
+####urlopen 
+url = "https://tieba.baidu.com/p/6105059826 "
+response = urllib.request.urlopen(url)
+####response是一个htttp
+html = response.read().decode('utf-8')
+
+import re ####
+###re.findall  re.search  re.copile
+####re.findall  找到所有符合表达式的字符串，有序返回列表
+test_test = '今年是2019年，是我学习数据分析的第1年'
+re.findall('\d+' , test_test)  ####\d在正则表达式中表示数个数字串
+re.findall('(\d+.)' , test_test)  ####\d在正则表达式中表示数个数字串
+
+"""
+基础的正则
+. 除换行符 \n 外任意字符
+\ 转义字符
+\d 数字
+{m} 匹配前一个字符m次
+.+？ 匹配任意字符一次货无限次
+（...） 括号来表示分组，多次使用 编号+1
+"""
+test_test = '今年我的2019年，是我学习数据分析的第1年'
+re.findall('是我(.+?)数据',test_test)
+re.findall('我(..)数据',test_test)
+re.findall('今(.+?)是',test_test)  #####提取前后数据
+
+###re.compile   根据正则表达式创建一个模式对象，可以更高效的匹配字符串
+reobj = re.compile('(\d+.)')  ####使用模式对象，效率更高
+reobj.findall(test_test)
+
+reg = 'src="(.+?\.jpg)" size'
+imgrwe = re.compile(reg)
+imglist = re.findall(imgrwe,html)
+####把url保存到本地
+import time
+x = 0
+for imgurl in imglist:
+    #print(imgurl)
+    urllib.request.urlretrieve(imgurl,'C:\\Users\\fangzhaoxing\\Desktop\\test\\pic_%s.jpg' %x)
+    x+=1
+    time.sleep(2)  ####延长时间，避免被封
+    print(x)
+print('done')
+
+#￥####
+#########第三方库爬虫
+###requests
+import requests
+url = "https://tieba.baidu.com/p/6105059826 "
+response = requests.get(url)  ##### 包含了打开url  读取超文本  编码超文本 
+response.text 
+reg = 'src="(.+?\.jpg)" size'
+imgrwe = re.compile(reg)
+imglist = re.findall(imgrwe,response.text)
+
+import time
+x = 0
+for imgurl in imglist:
+    #print(imgurl)
+    urllib.request.urlretrieve(imgurl,'C:\\Users\\fangzhaoxing\\Desktop\\test\\pic_%s.jpg' %x)
+    x+=1
+    time.sleep(2)  ####延长时间，避免被封
+    print(x)
+print('done')
+
+
+#####使用BeautifulSoup 进行关键字的提取
+from bs4 import BeautifulSoup
+#####BeautifulSoup 提取网页的标签
+####先构造一个html格式
+html_doc = """
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> test title </title>
+            <body>
+                <div>
+                    <h1>逗总是个大傻瓜</h1>
+                    <h2>数据服务</h2>
+                    <p>努力成为一个厉害的数据分析师</p> 
+                </div>
+                <div>
+                    <li><a href="https://fanyi.baidu.com/">百度翻译</a>
+                    </li>
+                    <li><a href="https://www.runoob.com/">小木虫</a>
+                    </li>
+                </div>
+            </body>
+    </head>
+</html>
+"""
+soup = BeautifulSoup(html_doc)  ####使用默认的解析器
+soup = BeautifulSoup(html_doc,'lxml')  ####lxml解析器解析能力强
+soup  ###跟刚才差不多，只是结构变化了
+soup.title  #$###读取标题
+soup.title.name
+soup.title.string
+soup.title.parent.name
+soup.h1
+soup.p
+soup.a
+soup.find_all('a')
+soup.find(a='百度翻译')  #$####精准查找
+for link in soup.find_all('a'):
+    print(link.get('href')) ####获取链接
+soup.get_text()
+soup.get()
+
+
+######试着爬中国旅游网
+url = 'http://www.cntour.cn/'
+response = requests.get(url) 
+response.text
+reg = 'class="top"><a target="_blank" href="(.+?)>'
+imgrwe = re.compile(reg)
+imglist = re.findall(imgrwe,response.text)
+
+reg2 = '(.+?)/"'
+imgrwe2 = re.compile(reg2)
+
+reg3 = ' title="(.+?)"'
+imgrwe3 = re.compile(reg3)
+
+html_total = []
+word_total = []
+for i in list(imglist):
+    html_total.append(str(re.findall(imgrwe2,i)))
+    word_total.append(str(re.findall(imgrwe3,i)))
+html_total = pd.Series(html_total)
+word_total = pd.Series(word_total)
+d = {'html':html_total , 'word' : word_total}
+data_total = pd.DataFrame(d)
+type(html_total[0])
+
+
