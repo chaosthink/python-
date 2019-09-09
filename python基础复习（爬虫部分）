@@ -218,3 +218,22 @@ data_total = pd.DataFrame(d)
 type(html_total[0])
 
 
+data_total.to_csv('C:\\Users\\fangzhaoxing\\Desktop\\test\\test.csv',encoding='utf_8_sig')
+
+######上面是自己的代码
+####下面是老师的实现
+from bs4 import BeautifulSoup
+url = 'http://www.cntour.cn/'
+strhtml = requests.get(url)
+strhtml.text
+soup  = BeautifulSoup(strhtml.text,'lxml')  ###使用beautifulsoup 将网页的格式转化
+data = soup.select('#main > div > div.mtop.firstMod.clearfix > div.centerBox > ul.newsList > li.top > a')
+####清洗和组织数据
+data[0].get('href')
+data[0].get('title')
+for item in data:
+    result = {
+            'news':item.get_text(),
+            'html':item.get('href')
+            }
+result
