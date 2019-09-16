@@ -237,3 +237,119 @@ for item in data:
             'html':item.get('href')
             }
 result
+
+######内容缺失了，重新温习一下
+import requests
+import json
+def  get_translate(word=None):    ####定义一个翻译函数,词语默认为空
+    url = 'http://fanyi.youdao.com/translate?smartresult=dict&smartresult=rule'   ####有道翻译的链接
+    payload = {     ####表单数据
+        'i': word,
+        'from': 'AUTO',
+        'to': 'AUTO',
+        'smartresult': 'dict',
+        'client': 'fanyideskweb',
+        'salt': '15681303074613',
+        'sign': 'ae245cb9109fb967e7dc41c37d5e84a6',
+        'ts': '1568130307461',
+        'bv': '53539dde41bde18f4a71bb075fcf2e66',
+        'doctype': 'json',
+        'version': '2.1',
+        'keyfrom': 'fanyi.web',
+        'action': 'FY_BY_REALTlME'
+         }
+    response = requests.post(url,data=payload)   ####使用post的方式，并且把表单传进来
+    content = json.loads(response.text) 
+    print(content['translateResult'][0][0]['tgt'] )   ####用json的方式读到翻译结果那一层
+get_translate('测试')
+if __name__=='__main__':
+    get_translate('小花钱包')
+if __name__=='__main__':  #####表示函数只会执行下面的代码，不会执行全部的代码
+    get_translate('你知不知道')
+    
+######尝试进行反爬
+####找到user_agent ，将请求头放到一个列表里，进行伪装
+headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'}
+import time
+####把标签头放进一个字典里，伪装自己的来源
+    payload = {
+        'i': word,
+        'from': 'AUTO',
+        'to': 'AUTO',
+        'smartresult': 'dict',
+        'client': 'fanyideskweb',
+        'salt': '15681303074613',
+        'sign': 'ae245cb9109fb967e7dc41c37d5e84a6',
+        'ts': '1568130307461',
+        'bv': '53539dde41bde18f4a71bb075fcf2e66',
+        'doctype': 'json',
+        'version': '2.1',
+        'keyfrom': 'fanyi.web',
+        'action': 'FY_BY_REALTlME'
+         }
+    response = requests.post(url,data=payload,headers = headers)  ####新加入heraders进行伪装
+    time.sleep(2) ####加进休息时间
+    content = json.loads(response.text)
+    print(content['translateResult'][0][0]['tgt'] )
+    
+######使用代理ip池进行伪装
+####代理ip地址：https://www.xicidaili.com/  免费的不会太好用
+proxies = {
+      'https': 'http://163.204.240.171:9999' }
+
+    payload = {
+        'i': word,
+        'from': 'AUTO',
+        'to': 'AUTO',
+        'smartresult': 'dict',
+        'client': 'fanyideskweb',
+        'salt': '15681303074613',
+        'sign': 'ae245cb9109fb967e7dc41c37d5e84a6',
+        'ts': '1568130307461',
+        'bv': '53539dde41bde18f4a71bb075fcf2e66',
+        'doctype': 'json',
+        'version': '2.1',
+        'keyfrom': 'fanyi.web',
+        'action': 'FY_BY_REALTlME'
+         }
+    response = requests.post(url,data=payload,headers = headers,proxies=proxies)  ####将代理ip放到这里进行伪装
+    time.sleep(2) ####加进休息时间
+    content = json.loads(response.text)
+    print(content['translateResult'][0][0]['tgt'] )
+
+######以上是简单的反扒技巧
+
+####下面开始爬淘宝的下拉列表
+url = 'https://suggest.taobao.com/sug?q=%E6%B0%B4%E6%9D%AF&code=utf-8&area=c2c&nick=&sid=null'    ####找到淘宝一级链接的地址
+strheml = requests.get(url)  ####读取url
+strheml.text   ####已经读到txt来了
+str_json= json.loads(strheml.text)  ####读取文档
+str_json
+str_json['result'][0][0]  ###已经可以提取一级关键字
+str_json['result'][0]
+
+###使用占位符替代关键字
+keyword = '电脑'
+url = 'https://suggest.taobao.com/sug?q={}&code=utf-8&area=c2c&nick=&sid=null'.format(keyword) ####使用调用外部字符
+strheml = requests.get(url)
+str_json= json.loads(strheml.text)
+str_json['result']
+
+###循环爬取二级下拉词
+keyword = '电脑'
+url = 'https://suggest.taobao.com/sug?q={}&code=utf-8&area=c2c&nick=&sid=null'.format(keyword) ####使用调用外部字符
+strheml = requests.get(url)
+str_json= json.loads(strheml.text)
+str_json['result']
+for item in str_json['result']:
+    print(item[0])  ####先打印一波二级下拉词
+total_list = []
+for item in str_json['result']:  ###利用循环传入参数，批量读取
+    time.sleep(2)
+    url = 'https://suggest.taobao.com/sug?q={}&code=utf-8&area=c2c&nick=&sid=null'.format(item[0])
+    gethtml = requests.get(url)
+    str_json = json.loads(gethtml.text)
+    for v in str_json['result']:
+        total_list.append(v)
+    print(total_list)
+    
