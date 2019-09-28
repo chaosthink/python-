@@ -1,0 +1,61 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Sep 17 19:03:09 2019
+
+@author: fangzhaoxing
+"""
+######最近要换租房，爬爬房源筛选一下
+
+import requests
+import re
+import time
+import numpy as np
+import pandas as pd
+
+
+####ok爬10页看看
+
+total_list = pd.DataFrame()
+
+
+startlist = range(1,101,1)
+for i in  startlist :
+    url = 'https://sz.lianjia.com/zufang/pg{}rt200600000001l2rs南山'.format(i)
+    ##伪装请求头
+    headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'}
+    response = requests.get(url,headers=headers)  ###读取数据
+    reg_housename = 'title="(.+?)>\n        <img'   ##爬取房屋姓名
+    img = re.compile(reg_housename)
+    imglist = re.findall(img,response.text)
+    
+    reg_mianji = '<i>/</i>\n        (.+?)㎡\n'  ###爬取房屋面积
+    img = re.compile(reg_mianji)
+    imglist1 = re.findall(img,response.text)  
+
+    reg_room = '<i>/</i>\n          (.+?)<span class' ###爬取房间数量
+    img = re.compile(reg_room)
+    imglist2 = re.findall(img,response.text)
+
+    reg_price = 'item-price"><em>(.+?)</span>' ###爬取价格
+    img = re.compile(reg_price)
+    imglist3 = re.findall(img,response.text)
+    
+    reg_lianjie = 'twoline">\n        <a target="_blank" href="(.+?)>' ###爬取价格
+    img = re.compile(reg_lianjie)
+    imglist3_1 = re.findall(img,response.text)
+    
+    if len(imglist2)<30 or len(imglist1)<30 or  len(imglist3)<30 :
+        imglist4 = {}
+        print('page:',i,'load fail...')
+    else:
+        imglist4 = {'housename':imglist,'mianji':imglist1,'room':imglist2,'price':imglist3,'lianjie':imglist3_1} ###合并数据
+    imglist5 = pd.DataFrame(imglist4)
+    ##imglist5['price'] = imglist5.price.apply(replace_new)
+    total_list = pd.concat([imglist5,total_list])    ###将文件合并到总表
+    time.sleep(20) ##休息20秒
+    print(i)
+
+def replace_new(x):
+    return x.replace('</em>','')
+total_list['price'] = total_list.price.apply(replace_new)
+total_list.to_csv('C:\\Users\\test2\\Desktop\\fangzi.csv',encoding='utf_8_sig')
