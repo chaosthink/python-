@@ -1,0 +1,144 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Sep 25 21:09:35 2019
+
+@author: fangzhaoxing
+"""
+
+
+import requests
+import re
+import time
+import numpy as np
+import pandas as pd
+from bs4 import BeautifulSoup
+
+###创建总表框架
+df_concat_total = pd.DataFrame()
+
+####循环爬取的网页
+startlist = range(1,10,1)
+for urlrange in  startlist :
+    #####当前时间
+    start = time.clock()
+    url = 'https://www.mzcloud.org/compound/reference/{}'.format(urlrange)
+    response = requests.get(url) 
+    ####计算拉取url的时间
+    timeused = (time.clock() - start)
+    print("page:",urlrange,",","open url time used:",timeused)
+    
+    ####网页数据较乱，使用BeautifulSoup辅助
+    soup = BeautifulSoup(response.text, 'lxml')
+    
+    soup_p = soup.find_all('p')
+    soup_list = []
+    for i in range(4):
+        soup_list.append(str(soup_p[i]).replace('</a>', '').replace('</i>', '').replace('<i>', '').replace('<a href="#Synonyms">', '').replace('<span class="compound-formula">', '').replace('<sub>', '').replace('</sub>', '').replace('\r', '').replace('\r', '').replace('\n', '').replace('<p>', '').replace('<b>', '').replace('</b>', '').replace('<span>', '').replace('</p>', '').replace('</span>', '').replace('<br/>', ''))
+    
+    soup_list2 = []
+    for i in range(len(soup_list)):
+        soup_list2.append(soup_list[i].split(':'))
+    
+    
+    soup_list_dict = {'Systematic / IUPAC Name':[],'ID':[],'Other Names':[],'Formula':[]}
+    for i,v in soup_list2:
+        soup_list_dict[i] = v
+    
+    ####用bs的select直接选取到批量链接
+    webname = soup.select('div > div.row > div > div > div > table > tr ')
+    
+    wiki = []
+    DrugBank = []
+    WebBook = []
+    KEGG = []
+    ChemSpider= []
+    ChEMBL = []
+    ChEBI = []
+    HMDb = []
+    PubChem = []
+    ChemIDPlus = []
+    
+    ###将链接保存到相应的列表
+    for i in range(len(webname)):
+        reg_webname = '<td class="col-md-2">(.+?)</td>' 
+        com_webname = re.compile(reg_webname)
+        webnamelist = re.findall(com_webname,str(webname[i]))
+        reg_weblink = 'href=(.+?)>' 
+        com_weblink = re.compile(reg_weblink)
+        weblinklist = re.findall(com_weblink,str(webname[i]))
+        if webnamelist[0] == 'Wikipedia' :
+            wiki.append(weblinklist)
+        elif webnamelist[0] =='DrugBank' :
+            DrugBank.append(weblinklist)
+        elif webnamelist[0] =='WebBook' :
+            WebBook.append(weblinklist)
+        elif webnamelist[0] =='KEGG' :
+            KEGG.append(weblinklist)
+        elif webnamelist[0] =='ChemSpider' :
+            ChemSpider.append(weblinklist)
+        elif webnamelist[0] =='ChEMBL' :
+            ChEMBL.append(weblinklist)
+        elif webnamelist[0] =='ChEBI' :
+            ChEBI.append(weblinklist)
+        elif webnamelist[0] =='HMDb' :
+            HMDb.append(weblinklist)
+        elif webnamelist[0] =='PubChem' :
+            PubChem.append(weblinklist)
+        elif webnamelist[0] =='ChemIDPlus' :
+            ChemIDPlus.append(weblinklist)
+    
+    ###因为部分链接有空值，所以保存成类似格式
+    if len(wiki) == 0:
+        wiki = [[]]
+    if len(DrugBank) == 0:
+        DrugBank = [[]]
+    if len(WebBook) == 0:
+        WebBook = [[]]
+    if len(KEGG) == 0:
+        KEGG = [[]]
+    if len(ChemSpider) == 0:
+        ChemSpider = [[]]
+    if len(ChEMBL) == 0:
+        ChEMBL = [[]]
+    if len(ChEBI) == 0:
+        ChEBI = [[]]
+    if len(HMDb) == 0:
+        HMDb = [[]]
+    if len(PubChem) == 0:
+        PubChem = [[]]
+    if len(ChemIDPlus) == 0:
+        ChemIDPlus = [[]]
+    
+    ###合并为字典
+    webtotal_dict = {'wiki':wiki,'DrugBank':DrugBank,'WebBook':WebBook,'KEGG':KEGG,
+                     'ChemSpider':ChemSpider,'ChEMBL':ChEMBL,'ChEBI':ChEBI,'HMDb':HMDb,'PubChem':PubChem,'ChemIDPlus':ChemIDPlus}
+    
+    #####新增：爬取图片链接
+    webpic = soup.select('body > div > div > div.col-sm-4.col-md-3 > div > img')
+    reg_webpic = 'src="(.+?)"/>' 
+    com_webpic = re.compile(reg_webpic)
+    webpiclist = re.findall(com_webpic,str(webpic))
+    ####为链接加上前缀
+    webpicfin = 'https://www.mzcloud.org' +webpiclist[0]
+    
+    soup_list_df = pd.DataFrame(soup_list_dict,index=[urlrange])
+    webtotal_dict = pd.DataFrame(webtotal_dict)
+    soup_list_df = soup_list_df.reset_index(drop=True)
+    webtotal_dict = webtotal_dict.reset_index(drop=True)
+    df_concat_final = pd.concat( [soup_list_df, webtotal_dict], axis=1 )
+    df_concat_final['webpic'] = webpicfin
+    
+    df_concat_total = pd.concat([df_concat_final,df_concat_total]) 
+    df_concat_total = df_concat_total.reset_index(drop=True)
+    time.sleep(3)
+    timeused2 = (time.clock() - start)
+    print("page:",urlrange,",","Total time used:",timeused2)
+
+#df_concat_total.to_csv('C:\\Users\\fangzhaoxing\\Desktop\\fangzi.csv',encoding='utf_8_sig')
+df_concat_total.to_csv('C:\\Users\\test2\\Desktop\\fangzi.csv',encoding='utf_8_sig')
+
+
+
+
+
+
