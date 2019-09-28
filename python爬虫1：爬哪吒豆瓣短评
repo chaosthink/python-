@@ -1,0 +1,37 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Sep 17 16:47:00 2019
+
+@author: fangzhaoxing
+"""
+import requests
+import re
+import time
+import numpy as np
+import pandas as pd
+
+###爬一下挪渣的评价，下面是基础的实现过程，爬第一页
+url = 'https://movie.douban.com/subject/26794435/comments?start=0&limit=20&sort=new_score&status=P'
+response = requests.get(url) 
+reg = '<span class="short">(.+?)</span>'
+img = re.compile(reg)
+imglist = re.findall(img,response.text)
+
+####开始丰富，爬十页就好了
+
+total_list = []
+
+startlist = range(0,220,20)
+for i in  startlist :
+    url = 'https://movie.douban.com/subject/26794435/comments?start={}&limit=20&sort=new_score&status=P'.format(i)
+    response = requests.get(url) 
+    reg = '<span class="short">(.+?)</span>'
+    img = re.compile(reg)
+    imglist = re.findall(img,response.text)
+    total_list.append(imglist)
+    time.sleep(15)
+    print(i)
+
+total_df = pd.DataFrame(total_list)
+total_df.head()
+total_df.to_csv('C:\\Users\\test2\\Desktop\\nezha.csv',encoding='utf_8_sig')
