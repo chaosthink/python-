@@ -353,3 +353,68 @@ for item in str_json['result']:  ###利用循环传入参数，批量读取
         total_list.append(v)
     print(total_list)
     
+
+####把爬到的数据保存到数据集
+import requests
+import json
+import pandas as pd
+result = {'标题':'标题','权重':'权重','层级':'层级'}
+keyword = '电脑'
+url = 'https://suggest.taobao.com/sug?q={}&code=utf-8&area=c2c&nick=&sid=null'.format(keyword)
+strhtml = requests.get(url)
+str_json = json.loads(strhtml.text)
+for item in str_json['result']:
+    result['标题']=item[0]
+    result['权重']=item[1]
+    result['层级'] = 1
+    data = pd.DataFrame.from_dict(result,orient='index').T
+    data.to_csv('C:\\Users\\fangzhaoxing\\Desktop\\test.csv',index=False,header=False,mode='a+',encoding='gbk')
+
+
+#####调用api接口
+###保存key值  46af150f27e54c51846e4d73e5f9f959
+    
+###开始学习调用api
+key = '46af150f27e54c51846e4d73e5f9f959'
+city = 'beijing'  ####测试api的调用
+url = 'https://api.heweather.net/s6/weather/forecast?location={}&key={}'.format(city,key)
+strhtml=requests.get(url)
+strhtml.text
+str_json = json.loads(strhtml.text)
+
+str_json['HeWeather6'][0]['basic']['location'] ####获取城市
+str_json['HeWeather6'][0]['daily_forecast'][0]
+str_json['HeWeather6'][0]['daily_forecast'][0]['tmp_max']
+#######把天气写到一行
+result = {'city':'','date':'','cond':'','max':'','min':''}
+
+for item in str_json['HeWeather6'][0]['daily_forecast']:
+    result['city']=str_json['HeWeather6'][0]['basic']['location']
+    result['date']=item['date']
+    result['cond']=item['cond_txt_n']
+    result['max'] = item['tmp_max']
+    result['min'] = item['tmp_min']
+    
+####自动爬取各大城市天气
+city_list = pd.read_csv('D:\\Users\\fangzhaoxing\\Downloads\\china-city-list.csv', skiprows=1)  ###读取数据跳过一行
+
+city_list.City_EN.iloc[1]
+
+final_list = pd.DataFrame()
+for  i  in range(20):
+    key = '46af150f27e54c51846e4d73e5f9f959'
+    city = city_list.City_EN.iloc[i]
+    url = 'https://api.heweather.net/s6/weather/forecast?location={}&key={}'.format(city,key)
+    strhtml=requests.get(url)
+    str_json = json.loads(strhtml.text)
+    result = {'city':'','date':'','cond':'','max':'','min':''}
+    for item in str_json['HeWeather6'][0]['daily_forecast']:
+        result['city']=str_json['HeWeather6'][0]['basic']['location']
+        result['date']=item['date']
+        result['cond']=item['cond_txt_n']
+        result['max'] = item['tmp_max']
+        result['min'] = item['tmp_min']
+    result_pd = pd.DataFrame(result,index=[i])
+    final_list = pd.concat([result_pd,final_list])
+    print(i)
+
