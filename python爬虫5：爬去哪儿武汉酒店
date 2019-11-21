@@ -1,0 +1,314 @@
+###室友想去武汉出差，帮她爬一下武汉的酒店
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Oct 29 19:45:33 2019
+
+@author: fangzhaoxing
+"""
+
+from selenium import webdriver
+import time
+import json
+import re
+import numpy as np
+import pandas as pd
+from selenium.webdriver.common.action_chains import  ActionChains ##通过drag_and_drop动作来获取焦点给page_down
+from selenium.webdriver.common.keys import Keys ###用来模拟page down键，实现下拉
+import time
+import random  ###随机停留时间
+import requests
+from bs4 import BeautifulSoup
+
+
+#####开始写
+####打开调试软件
+total_list = pd.DataFrame()
+driver = webdriver.Chrome(executable_path="C:\\Program Files (x86)\\Google\\Chrome\\Application\\chromedriver.exe")
+
+###获取网页
+driver.get('https://hotel.qunar.com/city/wuhan/#fromDate=2019-11-08&bs=%E9%AB%98%E9%9B%84%E5%A4%A7%E9%85%92%E5%BA%97&bc=%E6%AD%A6%E6%B1%89&QHFP=ZSL_A23551DE&cityurl=wuhan&toDate=2019-11-11&from=hotellist')
+
+####指定要爬取的页数，先来5页
+startlist = range(1,659,1)
+for listcnt in  startlist :
+    for i in range(4):
+        time.sleep(random.uniform(1,5))
+        ### 模拟 page down 的输入实现下拉滚动条
+        ActionChains(driver).send_keys(Keys.PAGE_DOWN).perform()
+    try:
+        source = driver.page_source
+        ####爬取酒店名字
+        reg_housename = '"e_title js_list_name"(.+?)</a>'   ##爬取酒店名字
+        name = re.compile(reg_housename)
+        namelist = re.findall(name,source)
+        namelist_clean = []
+        ####做一个简单的清洗，去掉namelist里没用的字符串
+        for i in namelist:
+            namelist_clean.append(str(i).replace('>','').replace(' rel="nofollow"',''))
+            
+        ####爬取评分，长度超过30，把超过30的部分去掉就行
+        reg_score = '<strong>(.+?)</strong>'   ##爬取酒店名字
+        score = re.compile(reg_score)
+        score_list = re.findall(score,source)
+        score_list = score_list[:len(namelist_clean)]
+        
+        ###起步，价格
+        reg_price = '<b>(.+?)</b>起'
+        price = re.compile(reg_price)
+        price_list = re.findall(price,source)
+        
+        ###点评数量
+        ##reg_comment = '<cite>(.+?)</cite>条用户'
+        ##comment = re.compile(reg_comment)
+        ##comment_list = re.findall(comment,source)
+        
+        ###二级链接
+        reg_sec_url = 'href="(.+?)/" title'
+        sec_url = re.compile(reg_sec_url)
+        sec_url_list = re.findall(sec_url,source)
+        sec_url_clean = []
+        ####做一个简单的清洗,去掉字符长度不过关的，去掉有问题的amp，并且加上前面的字符串
+        for i in sec_url_list:
+            if len(i)>150:
+                sec_url_clean.append('https://hotel.qunar.com' + str(i).replace('amp;','').replace('//bnb.qunar.com',''))
+            
+        final_url = []
+        for i in sec_url_clean:
+            if not i in final_url:
+                final_url.append(i)
+        final_url = final_url[:len(namelist_clean)]
+        len(final_url)
+        ####放到字典里  
+        webtotal_dict = {'housename':namelist_clean,'score':score_list,'price':price_list,'sec_url':final_url}
+        webtotal_df = pd.DataFrame(webtotal_dict,columns=['housename','score','price','sec_url'])
+        webtotal_df = webtotal_df.reset_index(drop=True)
+        total_list = pd.concat([webtotal_df,total_list])  
+        total_list = total_list.reset_index(drop=True)
+        
+        ####休息几秒，点击下一页
+        time.sleep(random.uniform(1,5))
+        ####进行点击下一页
+        print('page:',listcnt) ###打印当前页数
+        ####自动点击下一页
+        try:
+            driver.find_element_by_xpath('//*[@id="searchHotelPanel"]/div[6]/div[1]/div/ul/li[12]/a/span[1]').click() 
+        except :
+            print('error')
+            driver.find_element_by_xpath('//*[@id="hotel_sort"]/div/div[1]/div[4]/ul/li[3]/a/span').click() 
+    except  :
+        print('error:page',listcnt)
+        driver.find_element_by_xpath('//*[@id="hotel_sort"]/div/div[1]/div[4]/ul/li[3]/a/span').click() 
+    
+
+
+from selenium.webdriver.support.ui import WebDriverWait  ###用于检测网页是否加载完成
+from selenium.webdriver.support import expected_conditions as EC ####指定某一条件使爬取结束
+from selenium.webdriver.common.by import By  ##寻找元素的包
+total_list2 = pd.DataFrame()
+for weblist_sec_rank in range(50,len(total_list['sec_url']),1):
+    weblist_sec = total_list['sec_url'][weblist_sec_rank]
+    print(weblist_sec_rank)
+    time.sleep(random.uniform(1,5))
+    driver.set_page_load_timeout(60)
+    driver.set_script_timeout(60)
+    try:
+        driver.get('%s' %weblist_sec)
+    except:
+        print('timeout',weblist_sec_rank)
+        continue
+    try :
+        WebDriverWait(driver,10).until(EC.presence_of_all_elements_located((By.CLASS_NAME,'hd-name'))) ####最多等待10秒钟,等待直到某个条件出现,寻找条件,找到一个可以覆盖大多数的class条件
+    except :
+        print('end',weblist_sec_rank)
+        continue  ##表示终止循环    
+    source = driver.page_source
+    soup = BeautifulSoup(source, 'lxml')
+    try:
+        soup_t = soup.select('#jxDescTab')
+        
+        reg_soup_total = '<dt>(.+?)</dd>'
+        soup_total = re.compile(reg_soup_total)
+        soup_total_list = re.findall(soup_total,str(soup_t[0]).replace('\n','').replace('</dt>','').replace('\xa0',' '))
+        
+        soup_list_final = []
+        for i in soup_total_list:
+            soup_list_final.append(re.sub(u"\\<.*?\\>|\\{.*?}|\\[.*?]", ' ', i).replace('     ',''))
+        llfx = []
+        jbxx = []
+        jdjj = []
+        rlsj = []
+        fjfy = []
+        ydxz = []
+        wlss = []
+        tcc  = []
+        fjss = []
+        jdss = []
+        jdfw = []
+        
+        for i in soup_list_final:
+            if i[0:4] == '联系方式' :
+                llfx.append(i[4:])
+            elif i[0:4] == '基本信息' :
+                jbxx.append(i[4:])
+            elif i[0:4] == '酒店简介' :
+                jdjj.append(i[4:])
+            elif i[0:4] == '入离时间' :
+                rlsj.append(i[4:])
+            elif i[0:4] == '附加费用' :
+                fjfy.append(i[4:])
+            elif i[0:4] == '预订须知' :
+                ydxz.append(i[4:])
+            elif i[0:4] == '网络设施' :
+                wlss.append(i[4:])
+            elif i[0:4] == '停车场 ' :
+                tcc.append(i[4:])
+            elif i[0:4] == '房间设施' :
+                fjss.append(i[4:])
+            elif i[0:4] == '酒店设施' :
+                jdss.append(i[4:])
+            elif i[0:4] == '酒店服务' :
+                jdfw.append(i[4:])
+        
+        if len(llfx) == 0:
+            llfx = [[]]
+        if len(jbxx) == 0:
+            jbxx = [[]]
+        if len(jdjj) == 0:
+            jdjj = [[]]
+        if len(rlsj) == 0:
+            rlsj = [[]]
+        if len(fjfy) == 0:
+            fjfy = [[]]
+        if len(ydxz) == 0:
+            ydxz = [[]]
+        if len(wlss) == 0:
+            wlss = [[]]
+        if len(tcc) == 0:
+            tcc = [[]]
+        if len(fjss) == 0:
+            fjss = [[]]
+        if len(rlsj) == 0:
+            rlsj = [[]]
+        if len(jdss) == 0:
+            jdss = [[]]
+        if len(jdfw) == 0:
+            jdfw = [[]]
+    
+        webdetail_dict = {'链接':weblist_sec,'联系方式':llfx,'基本信息':jbxx,'酒店简介':jdjj,'入离时间':rlsj,
+                         '附加费用':fjfy,'预订须知':ydxz,'网络设施':wlss,'停车场':tcc,'房间设施':fjss,'酒店设施':jdss,'酒店服务':jdfw}
+        webdetail_df = pd.DataFrame(webdetail_dict)
+        webdetail_df = webdetail_df.reset_index(drop=True)
+        total_list2 = pd.concat([webdetail_df,total_list2])  
+        total_list2 = total_list2.reset_index(drop=True)
+    except :
+        print('link error,page:',weblist_sec_rank)
+        continue  ##表示终止循环    
+
+total_list3 = total_list2.drop_duplicates()
+total_list2['weblink'] = total_list2['链接']
+total_list['weblink'] = total_list['sec_url']
+total_list3 = pd.merge(total_list,total_list2,how='left',on='weblink')
+total_list3.columns
+total_list2.to_csv('C:\\Users\\fangzhaoxing\\Desktop\\fangzi2.csv',encoding='utf_8_sig')
+
+weblinks_sec = pd.read_csv('C:\\Users\\fangzhaoxing\\Desktop\\fangzi.csv')
+weblinks_sec = weblinks_sec[ (weblinks_sec['weblink2'].isnull())]
+weblinks_sec = weblinks_sec.reset_index(drop=True)
+for weblist_sec_rank in range(1,len(weblinks_sec['weblink']),1):
+    weblist_sec = weblinks_sec['weblink'][weblist_sec_rank]
+    print(weblist_sec_rank)
+    time.sleep(random.uniform(1,5))
+    driver.set_page_load_timeout(60)
+    driver.set_script_timeout(60)
+    try:
+        driver.get('%s' %weblist_sec)
+    except:
+        print('timeout',weblist_sec_rank)
+        continue
+    try :
+        WebDriverWait(driver,10).until(EC.presence_of_all_elements_located((By.CLASS_NAME,'hd-name'))) ####最多等待10秒钟,等待直到某个条件出现,寻找条件,找到一个可以覆盖大多数的class条件
+    except :
+        print('end',weblist_sec_rank)
+        continue  ##表示终止循环    
+    source = driver.page_source
+    soup = BeautifulSoup(source, 'lxml')
+    try:
+        soup_t = soup.select('#jxDescTab')
+        
+        reg_soup_total = '<dt>(.+?)</dd>'
+        soup_total = re.compile(reg_soup_total)
+        soup_total_list = re.findall(soup_total,str(soup_t[0]).replace('\n','').replace('</dt>','').replace('\xa0',' '))
+        
+        soup_list_final = []
+        for i in soup_total_list:
+            soup_list_final.append(re.sub(u"\\<.*?\\>|\\{.*?}|\\[.*?]", ' ', i).replace('     ',''))
+        llfx = []
+        jbxx = []
+        jdjj = []
+        rlsj = []
+        fjfy = []
+        ydxz = []
+        wlss = []
+        tcc  = []
+        fjss = []
+        jdss = []
+        jdfw = []
+        
+        for i in soup_list_final:
+            if i[0:4] == '联系方式' :
+                llfx.append(i[4:])
+            elif i[0:4] == '基本信息' :
+                jbxx.append(i[4:])
+            elif i[0:4] == '酒店简介' :
+                jdjj.append(i[4:])
+            elif i[0:4] == '入离时间' :
+                rlsj.append(i[4:])
+            elif i[0:4] == '附加费用' :
+                fjfy.append(i[4:])
+            elif i[0:4] == '预订须知' :
+                ydxz.append(i[4:])
+            elif i[0:4] == '网络设施' :
+                wlss.append(i[4:])
+            elif i[0:4] == '停车场 ' :
+                tcc.append(i[4:])
+            elif i[0:4] == '房间设施' :
+                fjss.append(i[4:])
+            elif i[0:4] == '酒店设施' :
+                jdss.append(i[4:])
+            elif i[0:4] == '酒店服务' :
+                jdfw.append(i[4:])
+        
+        if len(llfx) == 0:
+            llfx = [[]]
+        if len(jbxx) == 0:
+            jbxx = [[]]
+        if len(jdjj) == 0:
+            jdjj = [[]]
+        if len(rlsj) == 0:
+            rlsj = [[]]
+        if len(fjfy) == 0:
+            fjfy = [[]]
+        if len(ydxz) == 0:
+            ydxz = [[]]
+        if len(wlss) == 0:
+            wlss = [[]]
+        if len(tcc) == 0:
+            tcc = [[]]
+        if len(fjss) == 0:
+            fjss = [[]]
+        if len(rlsj) == 0:
+            rlsj = [[]]
+        if len(jdss) == 0:
+            jdss = [[]]
+        if len(jdfw) == 0:
+            jdfw = [[]]
+    
+        webdetail_dict = {'链接':weblist_sec,'联系方式':llfx,'基本信息':jbxx,'酒店简介':jdjj,'入离时间':rlsj,
+                         '附加费用':fjfy,'预订须知':ydxz,'网络设施':wlss,'停车场':tcc,'房间设施':fjss,'酒店设施':jdss,'酒店服务':jdfw}
+        webdetail_df = pd.DataFrame(webdetail_dict)
+        webdetail_df = webdetail_df.reset_index(drop=True)
+        total_list2 = pd.concat([webdetail_df,total_list2])  
+        total_list2 = total_list2.reset_index(drop=True)
+    except :
+        print('link error,page:',weblist_sec_rank)
+        continue  ##表示终止循环    
